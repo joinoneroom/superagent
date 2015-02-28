@@ -535,3 +535,40 @@ test('basic auth', function(next){
     next();
   });
 });
+
+it('request event', function(next){
+  request
+  .get('/foo')
+  .on('request', function(req){
+    assert('/foo' == req.url);
+    next();
+  })
+  .end();
+});
+
+it('response event', function(next){
+  request
+  .get('/foo')
+  .on('response', function(res){
+    assert('bar' == res.body.foo);
+    next();
+  })
+  .end();
+});
+
+it('xhr2 download file', function(next) {
+  request.parse['application/vnd.superagent'] = function (obj) {
+    return obj;
+  };
+
+  request
+  .get('/arraybuffer')
+  .on('request', function () {
+    this.xhr.responseType = 'arraybuffer';
+  })
+  .on('response', function(res) {
+    assert(res.body instanceof ArrayBuffer);
+    next();
+  })
+  .end();
+});
